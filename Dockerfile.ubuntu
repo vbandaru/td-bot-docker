@@ -1,0 +1,42 @@
+# good practice to use specific version including minor version for reproducible builds
+FROM python:3.6-stretch
+
+# Set up and activate virtual environment
+# ENV VIRTUAL_ENV "/venv"
+# RUN python -m venv $VIRTUAL_ENV
+# ENV PATH "$VIRTUAL_ENV/bin:$PATH"
+
+ARG APCA_API_SECRET_KEY
+ARG APCA_API_KEY_ID
+ARG APCA_API_BASE_URL
+ARG SLACK_API_TOKEN
+
+ENV APCA_API_SECRET_KEY=$APCA_API_SECRET_KEY
+ENV APCA_API_KEY_ID=$APCA_API_KEY_ID
+ENV APCA_API_BASE_URL=$APCA_API_BASE_URL
+ENV SLACK_API_TOKEN=$SLACK_API_TOKEN
+
+# run as non-root user (recommended)
+# RUN useradd --create-home appuser
+# WORKDIR /home/appuser
+# USER appuser
+
+# COPY requirements.txt /tmp
+
+COPY requirements.txt .
+
+# ADD . /tmp
+# WORKDIR /tmp
+
+# # Install underlying talib 'C' library
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+  tar -xvzf ta-lib-0.4.0-src.tar.gz && \
+  cd ta-lib/ && \
+  ./configure --prefix=/usr && \
+  make && \
+  make install 
+  
+# RUN pip install -r /tmp/requirements.txt
+RUN pip install -r requirements.txt
+
+#CMD ["python", "alerter.py"]
